@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">cayudiapp</string>
+    <string name="title_activity_main">cayudiapp</string>
+    <string name="package_name">com.dev.cayudiapp</string>
+    <string name="custom_url_scheme">com.dev.cayudiapp</string>
+</resources>
