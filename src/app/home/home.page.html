@@ -1,20 +1,116 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Cayudi Platform
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="page-bg" fullscreen>
+  <div class="wrap">
+    <div class="card">
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="brand">
+            <div class="logo-mark">
+              <img src="https://cayudi.com/wp-content/uploads/2025/06/cropped-logo-1.png" alt="Cayudi Logo" class="brand-logo"/>
+            </div>
+            <!-- <div class="brand-text">
+              <h2>Cayudi</h2>
+              <p class="micro">Campus Virtual en Salud</p>
+            </div> -->
+          </div>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+          <div class="panel-hero">
+            <h3>Formación clínica de excelencia</h3>
+            <p>Capacita a tu equipo con contenidos actualizados y validación profesional certificada.</p>
+          </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+          <ul class="panel-features">
+            <li>📚 Cursos especializados actualizados</li>
+            <li>🧑‍⚕️ Instructores acreditados</li>
+            <li>🔒 Plataforma segura y confiable</li>
+          </ul>
+        </div>
+      </aside>
+
+      <main class="form-area">
+        <div class="form-inner">
+          <h1 class="title">Bienvenido de nuevo</h1>
+          <p class="subtitle">Ingresa tus credenciales para acceder al campus virtual</p>
+
+          <form (ngSubmit)="onSubmit()" class="form-grid" novalidate>
+            <label class="field">
+              <span class="label-text">Correo electrónico</span>
+              <div class="input-wrap">
+                <ion-input
+                  id="email"
+                  type="email"
+                  [(ngModel)]="email"
+                  name="email"
+                  placeholder="correo@ejemplo.com"
+                  class="styled-input"
+                  required>
+                </ion-input>
+              </div>
+            </label>
+
+            <label class="field">
+              <span class="label-text">Contraseña</span>
+              <div class="input-wrap">
+                <ion-input
+                  id="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  [(ngModel)]="password"
+                  name="password"
+                  placeholder="Ingresa tu contraseña"
+                  class="styled-input"
+                  required>
+                </ion-input>
+                <button
+                  type="button"
+                  class="show-btn"
+                  (click)="togglePasswordVisibility()"
+                  [attr.aria-pressed]="showPassword"
+                  [attr.aria-label]="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'">
+                  <span *ngIf="!showPassword">👁️ Mostrar</span>
+                  <span *ngIf="showPassword">🙈 Ocultar</span>
+                </button>
+              </div>
+            </label>
+
+            <div class="row options">
+              <label class="remember">
+                <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" />
+                <span>Recordar mi sesión</span>
+              </label>
+
+              <a class="link-forgot" (click)="goToRecovery()">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <div *ngIf="errorMessage" class="error">
+              {{ errorMessage }}
+            </div>
+
+            <div class="row submit-row">
+              <ion-button expand="block" type="submit" [disabled]="isLoading" class="btn-primary" id="button-native">
+                <ng-container *ngIf="!isLoading">Ingresar al Campus</ng-container>
+                <ng-container *ngIf="isLoading">
+                  <ion-spinner name="crescent" class="spinner"></ion-spinner>
+                  <span>Verificando credenciales...</span>
+                </ng-container>
+              </ion-button>
+            </div>
+            <div class="panel-footer">
+              <small>&copy; 2025 Cayudi. Todos los derechos reservados.</small>
+            </div>
+
+            <!-- <div class="demo">
+              <p class="demo-title">Credenciales de demostración</p>
+              <p><strong>Estudiante:</strong> estudiante&#64;cayudi.com / estudiante123</p>
+              <p><strong>Instructor:</strong> instructor&#64;cayudi.com / instructor123</p>
+              <p><strong>Administrador:</strong> admin&#64;cayudi.com / admin123</p>
+            </div> -->
+          </form>
+
+          <!-- <div class="bottom-links">
+            <a href="#" class="link">¿No tienes una cuenta? Regístrate aquí</a>
+            <a href="#" class="link secondary">Continuar como invitado</a>
+          </div> -->
+        </div>
+      </main>
+    </div>
   </div>
 </ion-content>

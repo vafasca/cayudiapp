@@ -1,27 +1,722 @@
-#container {
-  text-align: center;
+$primary-dark: #0A3D62;
+$primary-medium: #2980B9;
+$white: #FFFFFF;
+$neutral-light: #F2F2F2;
+$accent-teal: #1ABC9C;
+$accent-orange: #E67E22;
+$text-dark: #2C3E50;
+$text-medium: #5D6D7E;
+$shadow-sm: 0 2px 8px rgba(10, 61, 98, 0.08);
+$shadow-md: 0 4px 16px rgba(10, 61, 98, 0.12);
+$shadow-lg: 0 8px 32px rgba(10, 61, 98, 0.16);
 
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+.page-bg {
+  --ion-background-color: transparent;
+  background: linear-gradient(135deg, #0A3D62 0%, #1ABC9C 50%, #e8ecf1 100%),
+              url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="%23ffffff" stroke-width="0.5" opacity="0.05"/></pattern><filter id="blur"><feGaussianBlur in="SourceGraphic" stdDeviation="0.8"/></filter></defs><rect width="1200" height="800" fill="%230A3D62"/><rect width="1200" height="800" fill="url(%23grid)"/><circle cx="100" cy="150" r="120" fill="%231ABC9C" opacity="0.08" filter="url(%23blur)"/><circle cx="1100" cy="700" r="150" fill="%232980B9" opacity="0.06" filter="url(%23blur)"/><path d="M 200 100 Q 600 200 1000 150" stroke="%23ffffff" stroke-width="1" fill="none" opacity="0.03"/></svg>');
+  background-size: cover, cover;
+  background-position: center, center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="medical" patternUnits="userSpaceOnUse" width="100" height="100"><circle cx="50" cy="50" r="8" fill="%23ffffff" opacity="0.03"/><path d="M50 40 L50 60 M40 50 L60 50" stroke="%23ffffff" stroke-width="1.5" opacity="0.02"/></pattern></defs><rect width="100" height="100" fill="url(%23medical)"/></svg>');
+    pointer-events: none;
+  }
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.wrap {
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
+.card {
+  display: grid;
+  grid-template-columns: 480px 1fr;
+  border-radius: 24px;
+  overflow: hidden;
+  background: $white;
+  box-shadow: $shadow-lg;
+  min-height: 640px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  // agregar un margin luego
 
-  color: #8c8c8c;
+  &:hover {
+    box-shadow: 0 12px 48px rgba(10, 61, 98, 0.2);
+  }
+}
 
+.panel {
+  background: linear-gradient(180deg, $primary-dark 0%, darken($primary-dark, 8%) 100%);
+  color: $white;
+  padding: 48px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba($accent-teal, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba($primary-medium, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+}
+
+.panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-mark {
+  width: 100%;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+  padding: 8px;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.brand-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.brand-svg {
+  width: 48px;
+  height: 48px;
+  stroke: $white;
+  fill: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.brand-text {
+  h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .micro {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    opacity: 0.9;
+    font-weight: 500;
+  }
+}
+
+.panel-hero {
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.3px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 15px;
+    opacity: 0.92;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+}
+
+.panel-features {
+  list-style: none;
+  padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  li {
+    font-size: 15px;
+    opacity: 0.94;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.14);
+      transform: translateX(4px);
+    }
+  }
 }
 
-#container a {
+.panel-footer {
+  text-align: center;
+  opacity: 0.8;
+  font-size: 13px;
+  font-weight: 500;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  color: black;
+}
+
+.form-area {
+  padding: 48px 56px;
+  background: $white;
+  display: flex;
+  align-items: center;
+}
+
+.form-inner {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  color: $primary-dark;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
+}
+
+.subtitle {
+  margin: 0 0 32px 0;
+  color: $text-medium;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label-text {
+  color: $text-dark;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.styled-input {
+  width: 100%;
+  background: $white;
+  border: 2px solid #E1E8ED;
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: $text-dark;
+  font-size: 15px;
+  font-weight: 500;
+  height: 52px;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+
+  &:focus {
+    border-color: $accent-teal;
+    box-shadow: 0 0 0 4px rgba($accent-teal, 0.1);
+    outline: none;
+  }
+
+  &::placeholder {
+    color: #95A5A6;
+    font-weight: 400;
+  }
+}
+
+.styled-input::part(native) {
+  background: transparent;
+  padding: 0;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  color: $text-medium;
+  font-size: 16px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.show-btn {
+  position: absolute;
+  right: 4px;
+  background: transparent;
+  border: none;
+  color: $primary-medium;
+  font-weight: 600;
+  padding: 10px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($primary-medium, 0.08);
+    color: $primary-dark;
+  }
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.row.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $text-dark;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: $accent-teal;
+    border-radius: 6px;
+  }
+}
+
+.link-forgot {
+  color: $primary-medium;
   text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: $primary-medium;
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    color: $primary-dark;
+
+    &::after {
+      width: 100%;
+    }
+  }
+}
+
+.error {
+  background: linear-gradient(135deg, #FFF5F5 0%, #FEE);
+  border-left: 4px solid $accent-orange;
+  color: darken($accent-orange, 15%);
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: $shadow-sm;
+
+  &::before {
+    content: '⚠';
+    font-size: 18px;
+  }
+}
+
+.submit-row {
+  margin-top: 8px;
+}
+
+#button-native{
+  color: #0A3D62;
+  background: lightblue;
+  border-radius: 12px;
+}
+
+.btn-primary {
+  --background: linear-gradient(135deg, #{$accent-teal} 0%, darken($accent-teal, 8%) 100%);
+  --background-hover: linear-gradient(135deg, darken($accent-teal, 5%) 0%, darken($accent-teal, 12%) 100%);
+  --background-activated: linear-gradient(135deg, darken($accent-teal, 5%) 0%, darken($accent-teal, 12%) 100%);
+  --border-radius: 12px;
+  --padding-top: 16px;
+  --padding-bottom: 16px;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --box-shadow: #{$shadow-md};
+  --color: #{$white};
+  --color-activated: #{$white};
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.3px;
+  text-transform: none;
+  transition: all 0.3s ease;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: visible;
+
+  &:hover {
+    --box-shadow: 0 8px 24px rgba(26, 188, 156, 0.3);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  &[disabled] {
+    opacity: 0.6;
+  }
+
+  ng-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  --color: #{$white};
+}
+
+.demo {
+  margin-top: 24px;
+  background: linear-gradient(135deg, #F8F9FA 0%, $neutral-light 100%);
+  border: 2px solid #E1E8ED;
+  padding: 20px 24px;
+  border-radius: 16px;
+  color: $text-dark;
+  font-size: 13px;
+  box-shadow: $shadow-sm;
+
+  p {
+    margin: 0 0 10px 0;
+    line-height: 1.6;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.demo-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: $primary-dark;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: '🔑';
+    font-size: 16px;
+  }
+}
+
+.bottom-links {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding-top: 24px;
+  border-top: 2px solid $neutral-light;
+}
+
+.link {
+  color: $primary-medium;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: $primary-medium;
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    color: $primary-dark;
+
+    &::after {
+      width: 100%;
+    }
+  }
+
+  &.secondary {
+    color: $text-medium;
+    font-weight: 500;
+
+    &::after {
+      background: $text-medium;
+    }
+
+    &:hover {
+      color: $text-dark;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .card {
+    grid-template-columns: 400px 1fr;
+    min-height: 560px;
+  }
+
+  .panel {
+    padding: 36px 32px;
+  }
+
+  .form-area {
+    padding: 40px 48px;
+  }
+}
+
+@media (max-width: 900px) {
+  .card {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .panel {
+    padding: 32px 24px;
+    min-height: 280px;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  .panel-inner {
+    gap: 20px;
+  }
+
+  .panel-features{
+    width: 50%;
+    margin: 0 auto;
+  }
+
+  .panel-hero{
+    text-align: center;
+  }
+
+  .form-area {
+    padding: 32px 24px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-bg {
+    padding: 16px;
+  }
+
+  .card {
+    border-radius: 20px;
+  }
+
+    .panel-features {
+    display: none;
+  }
+
+  .panel {
+    padding: 24px 20px;
+    min-height: 240px;
+  }
+
+  .brand {
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 100%;
+    height: 56px;
+  }
+
+  .brand-svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .brand-text h2 {
+    font-size: 22px;
+  }
+
+  .brand-text .micro {
+    font-size: 12px;
+  }
+
+  .panel-hero h3 {
+    font-size: 20px;
+  }
+
+  .panel-hero p {
+    font-size: 14px;
+  }
+
+  .form-area {
+    padding: 24px 20px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+  }
+
+  .form-grid {
+    gap: 20px;
+  }
+
+  .styled-input {
+    font-size: 14px;
+    padding: 12px 14px;
+    height: 48px;
+  }
+
+  .btn-primary {
+    height: 52px;
+    font-size: 15px;
+  }
+
+  .row.options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .demo {
+    padding: 16px 18px;
+    font-size: 12px;
+  }
+
+  .bottom-links {
+    gap: 10px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .title {
+    font-size: 22px;
+  }
+
+  .form-area {
+    padding: 20px 16px;
+  }
+
+  .panel {
+    padding: 20px 16px;
+  }
 }
