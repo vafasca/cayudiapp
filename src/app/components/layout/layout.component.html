@@ -1,3 +1,78 @@
-<p>
-  layout works!
-</p>
+<div class="dashboard-container">
+  <!-- HEADER SUPERIOR -->
+  <header class="header">
+    <div class="header-content">
+      <div class="header-left">
+        <ion-button fill="clear" class="menu-toggle" (click)="toggleSidebar()">
+          <ion-icon name="menu" slot="icon-only"></ion-icon>
+        </ion-button>
+        <div class="logo">CAYUDAI</div>
+      </div>
+
+      <div class="header-center">
+        <div class="search-bar">
+          <ion-icon name="search"></ion-icon>
+          <input type="text" placeholder="Buscar cursos, materiales...">
+        </div>
+      </div>
+
+      <div class="header-right">
+        <ion-button fill="clear" class="icon-button">
+          <ion-icon name="notifications"></ion-icon>
+          <span class="badge">3</span>
+        </ion-button>
+
+        <ion-button fill="clear" class="icon-button">
+          <ion-icon name="chatbubbles"></ion-icon>
+          <span class="badge">2</span>
+        </ion-button>
+
+        <div class="user-menu-container">
+          <button class="user-button" (click)="toggleUserMenu()">
+            <ion-icon name="person-circle"></ion-icon>
+            <span class="user-name">{{ user.name }}</span>
+            <ion-icon name="chevron-down" class="chevron"></ion-icon>
+          </button>
+
+          <div class="user-dropdown" *ngIf="showUserMenu">
+            <a class="dropdown-item">
+              <ion-icon name="eye"></ion-icon>
+              Ver perfil
+            </a>
+            <a class="dropdown-item">
+              <ion-icon name="settings"></ion-icon>
+              Configuración
+            </a>
+            <a class="dropdown-item" (click)="logout()">
+              <ion-icon name="log-out"></ion-icon>
+              Cerrar sesión
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR NAVEGACIÓN -->
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <nav class="sidebar-nav">
+      <a *ngFor="let item of menuItems"
+         class="nav-item"
+         [class.active]="item.active"
+         [routerLink]="item.route"
+         routerLinkActive="active"
+         (click)="isMobile && toggleSidebar()">
+        <ion-icon [name]="item.icon"></ion-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL (Router Outlet) -->
+  <main class="main-content" [class.sidebar-open]="sidebarOpen">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+
+<!-- Overlay para cerrar sidebar en móvil -->
+<div class="sidebar-overlay" *ngIf="sidebarOpen && isMobile" (click)="toggleSidebar()"></div>

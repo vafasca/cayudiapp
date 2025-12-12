@@ -1,242 +1,171 @@
-<div class="dashboard-container">
-  <!-- HEADER SUPERIOR -->
-  <header class="header">
-    <div class="header-content">
-      <div class="header-left">
-        <ion-button fill="clear" class="menu-toggle" (click)="toggleSidebar()">
-          <ion-icon name="menu" slot="icon-only"></ion-icon>
-        </ion-button>
-        <div class="logo">CAYUDI</div>
-      </div>
+<!-- SECCIÓN 1: BIENVENIDA -->
+<section class="welcome-section">
+  <div class="welcome-text">
+    <h1>Bienvenido, {{ user.name }}</h1>
+    <p>Tienes {{ userStats.activeCourses }} cursos activos y {{ userStats.pendingEvaluations }} evaluaciones pendientes</p>
+  </div>
+  <div class="quick-stats">
+    <div class="stat-item">
+      <ion-icon name="time"></ion-icon>
+      <span>{{ userStats.totalHours }}h estudio</span>
+    </div>
+    <div class="stat-item">
+      <ion-icon name="trending-up"></ion-icon>
+      <span>{{ userStats.progressPercent }}% progreso</span>
+    </div>
+    <div class="stat-item">
+      <ion-icon name="trophy"></ion-icon>
+      <span>{{ userStats.achievements }} logros</span>
+    </div>
+  </div>
+</section>
 
-      <div class="header-center">
-        <div class="search-bar">
-          <ion-icon name="search"></ion-icon>
-          <input type="text" placeholder="Buscar cursos, materiales...">
+<!-- SECCIÓN 2: PROGRESO GENERAL -->
+<section class="progress-section">
+  <div class="section-header">
+    <h2>Progreso General</h2>
+  </div>
+
+  <div class="progress-chart">
+    <div class="chart-placeholder">
+      <ion-icon name="stats-chart"></ion-icon>
+      <p>Gráfica de progreso semanal</p>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div *ngFor="let metric of metrics" class="metric-card" [style.border-left-color]="metric.color">
+      <ion-icon [name]="metric.icon" [style.color]="metric.color"></ion-icon>
+      <div class="metric-content">
+        <div class="metric-value">{{ metric.value }}</div>
+        <div class="metric-label">{{ metric.label }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-action">
+    <ion-button expand="block" color="primary">
+      VER PROGRESO DETALLADO
+    </ion-button>
+  </div>
+</section>
+
+<!-- SECCIÓN 3: CURSOS ACTIVOS -->
+<section class="courses-section">
+  <div class="section-header">
+    <h2>Cursos Activos</h2>
+  </div>
+
+  <div class="courses-grid">
+    <div *ngFor="let course of activeCourses" class="course-card">
+      <div class="course-thumbnail">
+        <!-- Imagen de placeholder - reemplazar con imagen real -->
+        <div class="thumbnail-placeholder" [style.background-color]="getRandomColor(course.title)">
+          <ion-icon name="school"></ion-icon>
         </div>
+        <ion-badge [color]="getStatusBadgeColor(course.status)" class="status-badge">
+          {{ getStatusText(course.status) }}
+        </ion-badge>
       </div>
 
-      <div class="header-right">
-        <ion-button fill="clear" class="icon-button">
-          <ion-icon name="notifications"></ion-icon>
-          <span class="badge">3</span>
+      <div class="course-content">
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="course-instructor">
+          <ion-icon name="person"></ion-icon>
+          {{ course.instructor }}
+        </p>
+
+        <div class="course-progress">
+          <div class="progress-info">
+            <span>Progreso</span>
+            <span class="progress-percent">{{ course.progress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="course.progress"></div>
+          </div>
+        </div>
+
+        <p class="next-lesson">
+          <ion-icon name="play-circle"></ion-icon>
+          Próximo: {{ course.nextLesson }}
+        </p>
+
+        <ion-button expand="block" color="primary">
+          CONTINUAR APRENDIENDO
         </ion-button>
+      </div>
+    </div>
+  </div>
+</section>
 
-        <ion-button fill="clear" class="icon-button">
-          <ion-icon name="chatbubbles"></ion-icon>
-          <span class="badge">2</span>
-        </ion-button>
+<!-- SECCIÓN 4: PRÓXIMAS ACTIVIDADES -->
+<section class="activities-section">
+  <div class="section-header">
+    <h2>Próximas Actividades</h2>
+  </div>
 
-        <div class="user-menu-container">
-          <button class="user-button" (click)="toggleUserMenu()">
-            <ion-icon name="person-circle"></ion-icon>
-            <span class="user-name">{{ user?.name }}</span>
-            <ion-icon name="chevron-down" class="chevron"></ion-icon>
-          </button>
-
-          <div class="user-dropdown" *ngIf="showUserMenu">
-            <a class="dropdown-item">
-              <ion-icon name="eye"></ion-icon>
-              Ver perfil
-            </a>
-            <a class="dropdown-item">
-              <ion-icon name="settings"></ion-icon>
-              Configuración
-            </a>
-            <a class="dropdown-item" (click)="logout()">
-              <ion-icon name="log-out"></ion-icon>
-              Cerrar sesión
-            </a>
+  <div class="activities-container">
+    <div class="activities-day">
+      <h3>Hoy</h3>
+      <div class="activity-list">
+        <div *ngFor="let activity of upcomingActivities.today" class="activity-item">
+          <div class="activity-icon">
+            <ion-icon [name]="getActivityIcon(activity.type)"></ion-icon>
+          </div>
+          <div class="activity-content">
+            <div class="activity-time">{{ activity.time }}</div>
+            <div class="activity-title">{{ activity.title }}</div>
           </div>
         </div>
       </div>
     </div>
-  </header>
 
-  <!-- SIDEBAR NAVEGACIÓN -->
-  <aside class="sidebar" [class.open]="sidebarOpen">
-    <nav class="sidebar-nav">
-      <a *ngFor="let item of menuItems"
-         class="nav-item"
-         [class.active]="item.active"
-         [attr.href]="item.route">
-        <ion-icon [name]="item.icon"></ion-icon>
-        <span>{{ item.label }}</span>
-      </a>
-    </nav>
-  </aside>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="main-content" [class.sidebar-open]="sidebarOpen">
-
-    <!-- SECCIÓN 1: BIENVENIDA -->
-    <section class="welcome-section">
-      <div class="welcome-text">
-        <h1>Bienvenido, {{ user?.name }}</h1>
-        <p>Tienes {{ userStats?.activeCourses }} cursos activos y {{ userStats?.pendingEvaluations }} evaluaciones pendientes</p>
-      </div>
-      <div class="quick-stats">
-        <div class="stat-item">
-          <ion-icon name="time"></ion-icon>
-          <span>{{ userStats?.totalHours }}h estudio</span>
-        </div>
-        <div class="stat-item">
-          <ion-icon name="trending-up"></ion-icon>
-          <span>{{ userStats?.progressPercent }}% progreso</span>
-        </div>
-        <div class="stat-item">
-          <ion-icon name="trophy"></ion-icon>
-          <span>{{ userStats?.achievements }} logros</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECCIÓN 2: PROGRESO GENERAL -->
-    <section class="progress-section">
-      <div class="section-header">
-        <h2>Progreso General</h2>
-      </div>
-
-      <div class="progress-chart">
-        <div class="chart-placeholder">
-          <ion-icon name="stats-chart"></ion-icon>
-          <p>Gráfica de progreso semanal</p>
-        </div>
-      </div>
-
-      <div class="metrics-grid">
-        <div *ngFor="let metric of metrics" class="metric-card" [style.border-left-color]="metric.color">
-          <ion-icon [name]="metric.icon" [style.color]="metric.color"></ion-icon>
-          <div class="metric-content">
-            <div class="metric-value">{{ metric.value }}</div>
-            <div class="metric-label">{{ metric.label }}</div>
+    <div class="activities-day">
+      <h3>Mañana</h3>
+      <div class="activity-list">
+        <div *ngFor="let activity of upcomingActivities.tomorrow" class="activity-item">
+          <div class="activity-icon">
+            <ion-icon [name]="getActivityIcon(activity.type)"></ion-icon>
+          </div>
+          <div class="activity-content">
+            <div class="activity-time">{{ activity.time }}</div>
+            <div class="activity-title">{{ activity.title }}</div>
           </div>
         </div>
       </div>
+    </div>
+  </div>
 
-      <div class="section-action">
-        <ion-button expand="block" color="primary">
-          VER PROGRESO DETALLADO
-        </ion-button>
+  <div class="section-action">
+    <ion-button expand="block" fill="outline" color="primary">
+      VER CALENDARIO COMPLETO
+    </ion-button>
+  </div>
+</section>
+
+<!-- SECCIÓN 5: RECOMENDACIONES -->
+<section class="recommendations-section">
+  <div class="section-header">
+    <h2>Recomendaciones</h2>
+    <p class="section-subtitle">Basado en tu progreso:</p>
+  </div>
+
+  <div class="recommendations-grid">
+    <div *ngFor="let course of recommendations" class="recommendation-card">
+      <!-- Imagen de placeholder - reemplazar con imagen real -->
+      <div class="thumbnail-placeholder" [style.background-color]="getRandomColor(course.title)">
+        <ion-icon name="book"></ion-icon>
       </div>
-    </section>
-
-    <!-- SECCIÓN 3: CURSOS ACTIVOS -->
-    <section class="courses-section">
-      <div class="section-header">
-        <h2>Cursos Activos</h2>
+      <div class="recommendation-content">
+        <h4>{{ course.title }}</h4>
+        <p class="recommendation-instructor">{{ course.instructor }}</p>
       </div>
+    </div>
+  </div>
 
-      <div class="courses-grid">
-        <div *ngFor="let course of activeCourses" class="course-card">
-          <div class="course-thumbnail">
-            <img [src]="course.thumbnail" [alt]="course.title">
-            <ion-badge [color]="getStatusBadgeColor(course.status)" class="status-badge">
-              {{ getStatusText(course.status) }}
-            </ion-badge>
-          </div>
-
-          <div class="course-content">
-            <h3 class="course-title">{{ course.title }}</h3>
-            <p class="course-instructor">
-              <ion-icon name="person"></ion-icon>
-              {{ course.instructor }}
-            </p>
-
-            <div class="course-progress">
-              <div class="progress-info">
-                <span>Progreso</span>
-                <span class="progress-percent">{{ course.progress }}%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" [style.width.%]="course.progress"></div>
-              </div>
-            </div>
-
-            <p class="next-lesson">
-              <ion-icon name="play-circle"></ion-icon>
-              Próximo: {{ course.nextLesson }}
-            </p>
-
-            <ion-button expand="block" color="primary">
-              CONTINUAR APRENDIENDO
-            </ion-button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECCIÓN 4: PRÓXIMAS ACTIVIDADES -->
-    <section class="activities-section">
-      <div class="section-header">
-        <h2>Próximas Actividades</h2>
-      </div>
-
-      <div class="activities-container">
-        <div class="activities-day">
-          <h3>Hoy</h3>
-          <div class="activity-list">
-            <div *ngFor="let activity of upcomingActivities.today" class="activity-item">
-              <div class="activity-icon">
-                <ion-icon [name]="getActivityIcon(activity.type)"></ion-icon>
-              </div>
-              <div class="activity-content">
-                <div class="activity-time">{{ activity.time }}</div>
-                <div class="activity-title">{{ activity.title }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="activities-day">
-          <h3>Mañana</h3>
-          <div class="activity-list">
-            <div *ngFor="let activity of upcomingActivities.tomorrow" class="activity-item">
-              <div class="activity-icon">
-                <ion-icon [name]="getActivityIcon(activity.type)"></ion-icon>
-              </div>
-              <div class="activity-content">
-                <div class="activity-time">{{ activity.time }}</div>
-                <div class="activity-title">{{ activity.title }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-action">
-        <ion-button expand="block" fill="outline" color="primary">
-          VER CALENDARIO COMPLETO
-        </ion-button>
-      </div>
-    </section>
-
-    <!-- SECCIÓN 5: RECOMENDACIONES -->
-    <section class="recommendations-section">
-      <div class="section-header">
-        <h2>Recomendaciones</h2>
-        <p class="section-subtitle">Basado en tu progreso:</p>
-      </div>
-
-      <div class="recommendations-grid">
-        <div *ngFor="let course of recommendations" class="recommendation-card">
-          <img [src]="course.thumbnail" [alt]="course.title">
-          <div class="recommendation-content">
-            <h4>{{ course.title }}</h4>
-            <p class="recommendation-instructor">{{ course.instructor }}</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-action">
-        <ion-button expand="block" color="primary">
-          EXPLORAR MÁS CURSOS
-        </ion-button>
-      </div>
-    </section>
-
-  </main>
-</div>
-
-<!-- Overlay para cerrar sidebar en móvil -->
-<div class="sidebar-overlay" *ngIf="sidebarOpen" (click)="toggleSidebar()"></div>
+  <div class="section-action">
+    <ion-button expand="block" color="primary">
+      EXPLORAR MÁS CURSOS
+    </ion-button>
+  </div>
+</section>

@@ -91,131 +91,201 @@ import { Dashboard } from 'src/app/services/dashboard';
   styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
-  user: User | null = null;
-  userStats: UserStats | null = null;
-  metrics: Metric[] = [];
-  activeCourses: Course[] = [];
-  upcomingActivities: { today: Activity[]; tomorrow: Activity[] } = {
-    today: [],
-    tomorrow: [],
+  // Datos de usuario (simulados)
+  user = {
+    name: 'Carlos Rodríguez',
   };
-  recommendations: Course[] = [];
-  sidebarOpen = false;
-  showUserMenu = false;
 
-  menuItems = [
-    { icon: 'home', label: 'Dashboard', route: '/dashboard', active: true },
-    { icon: 'book', label: 'Mis Cursos', route: '/courses', active: false },
+  // Estadísticas del usuario (simuladas)
+  userStats = {
+    activeCourses: 3,
+    pendingEvaluations: 4,
+    totalHours: 45,
+    progressPercent: 88,
+    achievements: 15,
+  };
+
+  // Métricas
+  metrics = [
+    { icon: 'time', value: '45h', label: 'Horas de estudio', color: '#1E73BE' },
     {
-      icon: 'calendar',
-      label: 'Calendario',
-      route: '/calendar',
-      active: false,
+      icon: 'trending-up',
+      value: '1215',
+      label: 'Puntos de experiencia',
+      color: '#2ECC71',
     },
     {
-      icon: 'document-text',
-      label: 'Evaluaciones',
-      route: '/evaluations',
-      active: false,
+      icon: 'trophy',
+      value: '15',
+      label: 'Logros obtenidos',
+      color: '#F39C12',
+    },
+    { icon: 'calendar', value: '100%', label: 'Asistencia', color: '#9B59B6' },
+  ];
+
+  // Cursos activos
+  activeCourses = [
+    {
+      title: 'Diplomado en Ecografía Ginecológica',
+      instructor: 'Dra. María González',
+      thumbnail: 'assets/course1.jpg',
+      status: 'active',
+      progress: 75,
+      nextLesson: 'Ecografía transvaginal',
     },
     {
-      icon: 'school',
-      label: 'Certificados',
-      route: '/certificates',
-      active: false,
+      title: 'Curso Avanzado de Ecocardiografía',
+      instructor: 'Dr. Javier López',
+      thumbnail: 'assets/course2.jpg',
+      status: 'active',
+      progress: 40,
+      nextLesson: 'Doppler tisular',
     },
     {
-      icon: 'stats-chart',
-      label: 'Mi Progreso',
-      route: '/progress',
-      active: false,
-    },
-    { icon: 'people', label: 'Comunidad', route: '/community', active: false },
-    { icon: 'chatbubbles', label: 'Foros', route: '/forums', active: false },
-    {
-      icon: 'settings',
-      label: 'Configuración',
-      route: '/settings',
-      active: false,
+      title: 'Fundamentos de Ultrasonido Abdominal',
+      instructor: 'Dr. Carlos Méndez',
+      thumbnail: 'assets/course3.jpg',
+      status: 'active',
+      progress: 90,
+      nextLesson: 'Ecografía hepática',
     },
   ];
 
-  constructor(
-    private authService: AuthService,
-    private dashboardService: Dashboard
-  ) {
+  // Próximas actividades
+  upcomingActivities = {
+    today: [
+      {
+        time: '10:00',
+        title: 'Clase en vivo: Anatomía Hepática',
+        type: 'class',
+      },
+      {
+        time: '15:00',
+        title: 'Entrega caso clínico Módulo 3',
+        type: 'assignment',
+      },
+    ],
+    tomorrow: [{ time: '14:00', title: 'Evaluación Módulo 2', type: 'exam' }],
+  };
+
+  // Recomendaciones
+  recommendations = [
+    {
+      title: 'Ecografía Ginecológica Avanzada',
+      instructor: 'Dra. Laura Sánchez',
+      thumbnail: 'assets/recommendation1.jpg',
+    },
+    {
+      title: 'Taller de Intervencionismo Ecoguiado',
+      instructor: 'Dr. Roberto Gómez',
+      thumbnail: 'assets/recommendation2.jpg',
+    },
+    {
+      title: 'Ecografía Musculoesquelética',
+      instructor: 'Dr. Andrés Fernández',
+      thumbnail: 'assets/recommendation3.jpg',
+    },
+  ];
+
+  // Cache para colores consistentes
+  private colorCache = new Map<string, string>();
+
+  constructor() {
     addIcons({
-      menu, search, notifications, chatbubbles, personCircle, chevronDown,
-      eye, settings, logOut, time, trendingUp, trophy, statsChart, person,
-      playCircle, home, book, calendar, documentText, school, people, cog,
-      ribbon, analytics, videocam, document, clipboard, informationCircle,
-      timeOutline, checkmarkCircleOutline, statsChartOutline, trophyOutline
+      time,
+      trendingUp,
+      trophy,
+      statsChart,
+      school,
+      person,
+      playCircle,
+      book,
+      calendar,
+      settings,
+      logOut,
+      documentText,
+      notifications,
+      menu,
+      search,
+      chatbubbles,
+      personCircle,
+      eye,
+      chevronDown,
+      home
     });
   }
 
-  ngOnInit(): void {
-    this.user = this.authService.currentUserValue;
-    this.loadDashboardData();
-  }
-
-  loadDashboardData(): void {
-    this.dashboardService.getUserStats().subscribe((stats) => {
-      this.userStats = stats;
-    });
-
-    this.dashboardService.getMetrics().subscribe((metrics) => {
-      this.metrics = metrics;
-    });
-
-    this.dashboardService.getActiveCourses().subscribe((courses) => {
-      this.activeCourses = courses;
-    });
-
-    this.dashboardService.getUpcomingActivities().subscribe((activities) => {
-      this.upcomingActivities = activities;
-    });
-
-    this.dashboardService.getRecommendations().subscribe((recommendations) => {
-      this.recommendations = recommendations;
-    });
-  }
-
-  toggleSidebar(): void {
-    this.sidebarOpen = !this.sidebarOpen;
-  }
-
-  toggleUserMenu(): void {
-    this.showUserMenu = !this.showUserMenu;
-  }
-
-  logout(): void {
-    this.authService.logout();
-  }
-
-  getActivityIcon(type: string): string {
-    const icons: { [key: string]: string } = {
-      class: 'videocam',
-      assignment: 'document',
-      exam: 'clipboard',
-    };
-    return icons[type] || 'information-circle';
-  }
+  ngOnInit(): void {}
 
   getStatusBadgeColor(status: string): string {
     const colors: { [key: string]: string } = {
-      'in-progress': 'warning',
-      completed: 'success',
-      pending: 'medium',
+      active: 'success',
+      pending: 'warning',
+      completed: 'primary',
     };
     return colors[status] || 'medium';
   }
 
   getStatusText(status: string): string {
     const texts: { [key: string]: string } = {
-      'in-progress': 'En progreso',
-      completed: 'Completado',
+      active: 'En progreso',
       pending: 'Pendiente',
+      completed: 'Completado',
     };
     return texts[status] || status;
+  }
+
+  getActivityIcon(type: string): string {
+    const icons: { [key: string]: string } = {
+      class: 'videocam',
+      assignment: 'document-text',
+      exam: 'clipboard',
+    };
+    return icons[type] || 'calendar';
+  }
+
+  // Método para obtener colores consistentes basados en el título
+  getRandomColor(key: string): string {
+    // Si ya tenemos un color para esta clave, lo devolvemos
+    if (this.colorCache.has(key)) {
+      return this.colorCache.get(key)!;
+    }
+
+    // Si no, generamos uno nuevo y lo guardamos en cache
+    const colors = [
+      '#667eea',
+      '#764ba2',
+      '#f093fb',
+      '#f5576c',
+      '#4facfe',
+      '#00f2fe',
+      '#43e97b',
+      '#38f9d7',
+      '#fa709a',
+      '#fee140',
+      '#a8edea',
+      '#fed6e3',
+      '#1E73BE',
+      '#0B3C5D',
+      '#2ECC71',
+      '#F39C12',
+      '#9B59B6',
+      '#E74C3C',
+      '#3498DB',
+      '#1ABC9C',
+    ];
+
+    // Generar un índice basado en el hash de la clave para consistencia
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) {
+      hash = key.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % colors.length;
+    const color = colors[index];
+
+    // Guardar en cache para futuras llamadas
+    this.colorCache.set(key, color);
+
+    return color;
   }
 }
