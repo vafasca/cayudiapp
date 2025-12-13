@@ -108,6 +108,121 @@
       </div>
     </aside>
 
+    <!-- CONTENT SIDEBAR (NUEVO) -->
+<div class="content-sidebar" id="mini-content" [class.show]="showContentPanel">
+  <div class="sidebar-header">
+    <h3>Contenido del Curso</h3>
+    <ion-button fill="clear" class="close-btn" (click)="toggleContentPanel()">
+      <ion-icon name="close"></ion-icon>
+    </ion-button>
+  </div>
+  <div class="content-scroll">
+    <!-- Información del progreso -->
+           <div class="course-info">
+        <div class="course-badge">{{ course.category }}</div>
+        <h1 class="course-title">{{ course.title }}</h1>
+
+        <div class="instructor">
+          <div class="instructor-avatar">{{ course.instructorAvatar }}</div>
+          <div>
+            <div class="instructor-name">{{ course.instructor }}</div>
+            <div class="instructor-role">Instructor Principal</div>
+          </div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progreso del curso</span>
+            <span class="progress-value">{{ course.overallProgress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="course.overallProgress"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-value">{{ course.totalDuration }}</div>
+            <div class="stat-label">Duración total</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">{{ course.totalModules }}</div>
+            <div class="stat-label">Módulos</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">{{ calculateTimeUntilCompletion() }}</div>
+            <div class="stat-label">Tiempo restante</div>
+          </div>
+        </div>
+
+        <div class="certificate-status" *ngIf="course.hasCertificate">
+          <div class="certificate-icon">
+            <ion-icon name="checkmark"></ion-icon>
+          </div>
+          <div class="certificate-info">
+            <div class="certificate-label">Certificación disponible</div>
+            <div class="certificate-progress">{{ course.certificateProgress }}% completado</div>
+          </div>
+        </div>
+      </div>
+    <!-- Lista de módulos y lecciones -->
+     <div class="modules-header">
+        <h2>Contenido del curso</h2>
+          <p>{{ course.totalModules }} módulos • {{ course.totalLessons }} lecciones</p>
+     </div>
+     <div class="modules-list">
+          <div class="module" *ngFor="let module of course.modules" [class.expanded]="module.isExpanded">
+            <div class="module-header" (click)="toggleModule(module)">
+              <div class="module-info">
+                <div class="module-status" [class.completed]="module.progress === 100">
+                  <span *ngIf="module.progress === 100">✓</span>
+                  <span *ngIf="module.progress < 100">{{ module.progress }}%</span>
+                </div>
+                <div class="module-details">
+                  <h3>{{ module.title }}</h3>
+                  <p>{{ module.lessons.length }} lecciones • {{ module.duration }}</p>
+                </div>
+              </div>
+              <ion-icon name="chevron-down" class="expand-icon" [class.expanded]="module.isExpanded"></ion-icon>
+            </div>
+
+            <div class="lessons" *ngIf="module.isExpanded">
+              <div class="lesson"
+                   *ngFor="let lesson of module.lessons"
+                   [class.active]="activeLesson?.id === lesson.id"
+                   [class.completed]="lesson.completed"
+                   (click)="selectLesson(lesson, module)">
+                <div class="lesson-icon">{{ getLessonIcon(lesson.type) }}</div>
+                <div class="lesson-info">
+                  <div class="lesson-title">{{ lesson.title }}</div>
+                  <div class="lesson-meta">
+                    <span class="lesson-type">{{ getLessonTypeText(lesson.type) }}</span>
+                    <span class="lesson-duration">{{ lesson.duration }}</span>
+                  </div>
+                </div>
+                <button class="lesson-check"
+                        (click)="toggleLessonCompletion(lesson, module); $event.stopPropagation()"
+                        [class.completed]="lesson.completed">
+                  <ion-icon name="checkmark"></ion-icon>
+                </button>
+              </div>
+
+              <div class="module-exam" *ngIf="module.hasExam && course.showExams && module.examEnabled">
+                <div class="exam-content">
+                  <div class="exam-icon">✓</div>
+                  <div class="exam-info">
+                    <div class="exam-title">Evaluación del módulo</div>
+                    <div class="exam-description">Examen opcional disponible</div>
+                  </div>
+                  <button class="exam-btn" (click)="startExam(module)">Comenzar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  </div>
+</div>
+
     <main class="main-content">
       <div class="lesson-viewer" *ngIf="activeLesson">
         <div class="viewer-header">
@@ -381,6 +496,10 @@
   </div>
 
   <div class="floating-actions">
+    <ion-fab-button class="floating-btn" id="mini-side" [class.active]="showContentPanel" 
+                  (click)="toggleContentPanel()" title="Contenido">
+      <ion-icon name="list"></ion-icon>
+    </ion-fab-button>
     <ion-fab-button class="floating-btn" [class.active]="showNotesPanel" (click)="toggleNotesPanel()" title="Notas">
       <ion-icon name="create"></ion-icon>
     </ion-fab-button>

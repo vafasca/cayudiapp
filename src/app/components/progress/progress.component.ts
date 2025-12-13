@@ -21,7 +21,8 @@ import {
   close,
   cube,
   create,
-  arrowForward
+  arrowForward,
+  list // NUEVO ICONO PARA CONTENIDO
 } from 'ionicons/icons';
 
 declare global {
@@ -119,10 +120,10 @@ export class ProgressComponent implements OnInit, OnDestroy {
         examEnabled: true,
         lessons: [
           { id: '1-1', title: 'Introducción al curso', type: 'video', duration: '45 min', completed: true, resourceUrl: 'M7lc1UVf-VE', hasPreview: true },
-          { id: '1-2', title: 'Principios físicos del ultrasonido', type: 'video', duration: '60 min', completed: true, resourceUrl: 'dQw4w9WgXcQ' },
-          { id: '1-3', title: 'Tipos de transductores', type: 'text', duration: '30 min', completed: true, description: 'Guía completa de transductores' },
-          { id: '1-4', title: 'Manual de equipo', type: 'pdf', duration: '45 min', completed: true, resourceUrl: 'manual-equipo.pdf' },
-          { id: '1-5', title: 'Evaluación Módulo 1', type: 'quiz', duration: '30 min', completed: true, hasPreview: false }
+          { id: '1-2', title: 'Principios físicos del ultrasonido', type: 'video', duration: '60 min', completed: false, resourceUrl: 'dQw4w9WgXcQ' },
+          { id: '1-3', title: 'Tipos de transductores', type: 'text', duration: '30 min', completed: false, description: 'Guía completa de transductores' },
+          { id: '1-4', title: 'Manual de equipo', type: 'pdf', duration: '45 min', completed: false, resourceUrl: 'manual-equipo.pdf' },
+          { id: '1-5', title: 'Evaluación Módulo 1', type: 'quiz', duration: '30 min', completed: false, hasPreview: false }
         ]
       },
       {
@@ -198,6 +199,7 @@ export class ProgressComponent implements OnInit, OnDestroy {
   activeLesson: Lesson | null = null;
   showResourcesPanel = false;
   showNotesPanel = false;
+  showContentPanel = false; // NUEVO: Panel de contenido
   userNote = '';
   notes: string[] = [
     '2024-03-15 10:30: Importante: Recordar la relación entre el tamaño del transductor y la frecuencia',
@@ -249,7 +251,8 @@ export class ProgressComponent implements OnInit, OnDestroy {
       'close': close,
       'cube': cube,
       'create': create,
-      'arrow-forward': arrowForward
+      'arrow-forward': arrowForward,
+      'list': list // NUEVO ICONO
     });
   }
 
@@ -607,6 +610,8 @@ export class ProgressComponent implements OnInit, OnDestroy {
   selectLesson(lesson: Lesson, module: Module): void {
     this.activeLesson = lesson;
     if (!module.isExpanded) module.isExpanded = true;
+    // NUEVO: Cerrar el panel de contenido al seleccionar una lección
+    this.showContentPanel = false;
     setTimeout(() => this.initPlayerForActiveLesson(), 150);
   }
 
@@ -637,7 +642,7 @@ export class ProgressComponent implements OnInit, OnDestroy {
       video: '▶',
       text: '📖',
       pdf: '📄',
-      quiz: '✓',
+      quiz: '✔',
       practice: '🔬'
     };
     return icons[type] || '📚';
@@ -694,12 +699,27 @@ export class ProgressComponent implements OnInit, OnDestroy {
 
   toggleResourcesPanel(): void {
     this.showResourcesPanel = !this.showResourcesPanel;
-    if (this.showResourcesPanel) this.showNotesPanel = false;
+    if (this.showResourcesPanel) {
+      this.showNotesPanel = false;
+      this.showContentPanel = false; // NUEVO
+    }
   }
 
   toggleNotesPanel(): void {
     this.showNotesPanel = !this.showNotesPanel;
-    if (this.showNotesPanel) this.showResourcesPanel = false;
+    if (this.showNotesPanel) {
+      this.showResourcesPanel = false;
+      this.showContentPanel = false; // NUEVO
+    }
+  }
+
+  // NUEVO MÉTODO
+  toggleContentPanel(): void {
+    this.showContentPanel = !this.showContentPanel;
+    if (this.showContentPanel) {
+      this.showResourcesPanel = false;
+      this.showNotesPanel = false;
+    }
   }
 
   downloadResource(resource: Resource): void {

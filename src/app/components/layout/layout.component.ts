@@ -96,7 +96,7 @@ sidebarOpen = false;
   }
 
   checkScreenSize() {
-    this.isMobile = window.innerWidth <= 1024;
+    this.isMobile = window.innerWidth <= 1200;
     if (!this.isMobile) {
       this.sidebarOpen = true;
     } else {
