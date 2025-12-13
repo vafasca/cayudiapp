@@ -1,0 +1,292 @@
+<div class="certificates-container">
+    <div class="certificates-header">
+      <div class="header-content">
+        <h1>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="header-icon">
+            <path d="M9 12L11 14L15 10M20 6V5C20 3.89543 19.1046 3 18 3H6C4.89543 3 4 3.89543 4 5V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V18M20 10V14M20 10H12.5M20 14H12.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Mis Certificados
+        </h1>
+        <p>Gestiona y descarga tus certificados de formación médica</p>
+      </div>
+      <div class="stats-row">
+        <ion-card class="stat-card">
+          <ion-card-content>
+            <div class="stat-value">{{ certificates.length }}</div>
+            <div class="stat-label">Total</div>
+          </ion-card-content>
+        </ion-card>
+        <ion-card class="stat-card issued">
+          <ion-card-content>
+            <div class="stat-value">{{ getStatusCount('issued') }}</div>
+            <div class="stat-label">Emitidos</div>
+          </ion-card-content>
+        </ion-card>
+        <ion-card class="stat-card pending">
+          <ion-card-content>
+            <div class="stat-value">{{ getStatusCount('pending') }}</div>
+            <div class="stat-label">Pendientes</div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <div class="certificates-layout">
+      <div class="certificates-list-section">
+        <ion-card class="filters-section">
+          <ion-card-content>
+            <div class="filter-group">
+              <ion-chip
+                [class.active]="activeFilter === 'all'"
+                (click)="setFilter('all')">
+                <span class="chip-dot"></span>
+                <ion-label>Todos</ion-label>
+              </ion-chip>
+              <ion-chip
+                [class.active]="activeFilter === 'issued'"
+                (click)="setFilter('issued')">
+                <span class="chip-dot issued"></span>
+                <ion-label>Emitidos</ion-label>
+              </ion-chip>
+              <ion-chip
+                [class.active]="activeFilter === 'pending'"
+                (click)="setFilter('pending')">
+                <span class="chip-dot pending"></span>
+                <ion-label>Pendientes</ion-label>
+              </ion-chip>
+            </div>
+
+            <div class="search-row">
+              <ion-searchbar
+                class="custom-searchbar"
+                placeholder="Buscar certificados..."
+                [(ngModel)]="searchQuery"
+                [debounce]="300">
+              </ion-searchbar>
+
+              <ion-select
+                class="category-select"
+                [(ngModel)]="categoryFilter"
+                interface="popover"
+                placeholder="Categoría">
+                <ion-select-option value="all">Todas las categorías</ion-select-option>
+                <ion-select-option *ngFor="let category of categories" [value]="category">
+                  {{category}}
+                </ion-select-option>
+              </ion-select>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <div class="certificates-list">
+          <ion-card
+            class="certificate-card"
+            *ngFor="let certificate of filteredCertificates"
+            [class.selected]="selectedCertificate?.id === certificate.id"
+            [class.placeholder]="isPlaceholder(certificate)"
+            (click)="selectCertificate(certificate)"
+            button>
+
+            <ion-card-content>
+              <div class="card-status" [style.background]="getStatusColor(certificate.status)">
+                <span class="status-dot"></span>
+                {{ getStatusText(certificate.status) }}
+              </div>
+
+              <h3 class="card-title">{{ certificate.courseTitle }}</h3>
+
+              <div class="card-info">
+                <div class="info-row">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>{{ certificate.instructor }}</span>
+                </div>
+
+                <div class="info-row">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                  <span>{{ formatDate(certificate.issueDate) }}</span>
+                </div>
+
+                <div class="info-row">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span>{{ certificate.hoursCompleted }}h</span>
+                </div>
+              </div>
+
+              <div class="card-meta">
+                <span class="certificate-id">{{ certificate.certificateId }}</span>
+                <span class="certificate-grade" *ngIf="certificate.grade && certificate.grade > 0">
+                  <ion-icon name="star"></ion-icon>
+                  {{ certificate.grade }}/100
+                </span>
+              </div>
+
+              <div class="card-actions" *ngIf="canDownload(certificate)">
+                <ion-button
+                  expand="block"
+                  class="btn-download"
+                  (click)="downloadCertificate(certificate); $event.stopPropagation()">
+                  <ion-icon slot="start" name="download-outline"></ion-icon>
+                  Descargar
+                </ion-button>
+              </div>
+
+              <div class="card-pending" *ngIf="isPlaceholder(certificate)">
+                <ion-badge class="pending-badge">
+                  {{ getPlaceholderIcon(certificate) }} En proceso
+                </ion-badge>
+              </div>
+            </ion-card-content>
+          </ion-card>
+
+          <div class="empty-state" *ngIf="filteredCertificates.length === 0">
+            <div class="empty-icon">
+              <ion-icon name="document-text-outline" size="large"></ion-icon>
+            </div>
+            <h3>No se encontraron certificados</h3>
+            <p>No hay certificados que coincidan con tus filtros de búsqueda.</p>
+            <ion-button class="btn-clear" (click)="clearFilters()">
+              Limpiar filtros
+            </ion-button>
+          </div>
+        </div>
+      </div>
+
+      <div class="certificate-preview-section">
+        <ion-card class="preview-container" *ngIf="selectedCertificate">
+          <div class="preview-header">
+            <div>
+              <h2>{{ selectedCertificate.courseTitle }}</h2>
+              <p>{{ selectedCertificate.certificateId }}</p>
+            </div>
+            <ion-badge class="preview-badge" [style.background]="getStatusColor(selectedCertificate.status)">
+              {{ getStatusText(selectedCertificate.status) }}
+            </ion-badge>
+          </div>
+
+          <div class="pdf-viewer">
+            <pdf-viewer
+              *ngIf="currentPdfUrl && !isPlaceholder(selectedCertificate)"
+              [src]="currentPdfUrl"
+              [render-text]="true"
+              [original-size]="false"
+              [fit-to-page]="true"
+              [show-all]="true"
+              [autoresize]="true"
+              style="width: 100%; height: 100%; display: block;">
+            </pdf-viewer>
+
+            <div class="pdf-overlay" *ngIf="isPlaceholder(selectedCertificate)">
+              <div class="overlay-content">
+                <div class="overlay-icon">
+                  <ion-icon name="hourglass-outline" size="large"></ion-icon>
+                </div>
+                <h3>Certificado en Proceso</h3>
+                <p>Este certificado está siendo preparado y estará disponible próximamente.</p>
+              </div>
+            </div>
+          </div>
+
+          <ion-card-content class="certificate-details">
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <ion-icon name="person-outline"></ion-icon>
+                </div>
+                <div>
+                  <div class="detail-label">Instructor</div>
+                  <div class="detail-value">{{ selectedCertificate.instructor }}</div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <ion-icon name="calendar-outline"></ion-icon>
+                </div>
+                <div>
+                  <div class="detail-label">Fecha de Emisión</div>
+                  <div class="detail-value">{{ formatDate(selectedCertificate.issueDate) }}</div>
+                </div>
+              </div>
+
+              <div class="detail-item" *ngIf="selectedCertificate.grade && selectedCertificate.grade > 0">
+                <div class="detail-icon grade">
+                  <ion-icon name="star"></ion-icon>
+                </div>
+                <div>
+                  <div class="detail-label">Calificación Final</div>
+                  <div class="detail-value grade">{{ selectedCertificate.grade }}/100</div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <ion-icon name="time-outline"></ion-icon>
+                </div>
+                <div>
+                  <div class="detail-label">Horas de Formación</div>
+                  <div class="detail-value">{{ selectedCertificate.hoursCompleted }} horas</div>
+                </div>
+              </div>
+
+              <div class="detail-item" *ngIf="selectedCertificate.validityPeriod">
+                <div class="detail-icon">
+                  <ion-icon name="shield-checkmark-outline"></ion-icon>
+                </div>
+                <div>
+                  <div class="detail-label">Validez</div>
+                  <div class="detail-value">{{ selectedCertificate.validityPeriod }}</div>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <ion-icon name="pricetag-outline"></ion-icon>
+                </div>
+                <div>
+                  <div class="detail-label">Categoría</div>
+                  <div class="detail-value">{{ selectedCertificate.courseCategory }}</div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+
+          <ion-card-content class="preview-actions">
+            <div class="actions-grid" *ngIf="canDownload(selectedCertificate)">
+              <ion-button class="btn-action primary" (click)="downloadCertificate(selectedCertificate)">
+                <ion-icon slot="start" name="download-outline"></ion-icon>
+                Descargar PDF
+              </ion-button>
+
+              <ion-button class="btn-action secondary" (click)="shareCertificate(selectedCertificate)">
+                <ion-icon slot="start" name="share-social-outline"></ion-icon>
+                Compartir
+              </ion-button>
+
+              <ion-button class="btn-action linkedin" (click)="viewInLinkedIn(selectedCertificate)">
+                <ion-icon slot="start" name="logo-linkedin"></ion-icon>
+                LinkedIn
+              </ion-button>
+            </div>
+
+            <ion-card class="pending-notice" *ngIf="isPlaceholder(selectedCertificate)">
+              <ion-card-content>
+                <div class="notice-icon">{{ getPlaceholderIcon(selectedCertificate) }}</div>
+                <div class="notice-content">
+                  <h3>Certificado en Proceso</h3>
+                  <p>Tu certificado está siendo preparado por nuestro equipo académico. Recibirás una notificación cuando esté disponible.</p>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-card-content>
+        </ion-card>
+
+        <div class="no-selection" *ngIf="!selectedCertificate">
+          <div class="no-selection-icon">
+            <ion-icon name="document-text-outline" size="large"></ion-icon>
+          </div>
+          <h3>Selecciona un certificado</h3>
+          <p>Selecciona un certificado de la lista para ver su vista previa y opciones de descarga.</p>
+        </div>
+      </div>
+    </div>
+</div>

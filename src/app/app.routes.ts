@@ -14,8 +14,12 @@ export const routes: Routes = [
         loadComponent: () => import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
-        path: 'cursos', // Esta ruta debe coincidir con la del menú
+        path: 'cursos',
         loadComponent: () => import('./components/courses/courses.component').then((m) => m.CoursesComponent),
+      },
+      {
+        path: 'certificado',
+        loadComponent: () => import('./components/certificate/certificate.component').then((m) => m.CertificateComponent),
       },
       // Otras rutas hijas que necesites
       // {

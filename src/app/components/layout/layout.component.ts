@@ -23,7 +23,8 @@ import {
   search,
   videocam,
   clipboard,
-  pulseOutline
+  pulseOutline,
+  readerOutline
 } from 'ionicons/icons';
 
 
@@ -50,6 +51,7 @@ sidebarOpen = false;
     { icon: 'grid', label: 'Dashboard', route: '/dashboard', active: true },
     { icon: 'school', label: 'Mis Cursos', route: '/cursos' },
     { icon: 'calendar', label: 'Calendario', route: '/calendario' },
+    { icon: 'reader-outline', label: 'Certificado', route: '/certificado' },
     { icon: 'pulse-outline', label: 'Mi progreso', route: '/progreso' },
     { icon: 'document-text', label: 'Materiales', route: '/materiales' },
     { icon: 'stats-chart', label: 'Estadísticas', route: '/estadisticas' },
@@ -78,7 +80,8 @@ sidebarOpen = false;
     search,
     videocam,
     clipboard,
-    pulseOutline
+    pulseOutline,
+    readerOutline
   });
 }
 
