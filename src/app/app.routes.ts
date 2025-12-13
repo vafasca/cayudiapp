@@ -21,6 +21,10 @@ export const routes: Routes = [
         path: 'certificado',
         loadComponent: () => import('./components/certificate/certificate.component').then((m) => m.CertificateComponent),
       },
+      {
+        path: 'progreso',
+        loadComponent: () => import('./components/progress/progress.component').then((m) => m.ProgressComponent),
+      },
       // Otras rutas hijas que necesites
       // {
       //   path: 'calendario',

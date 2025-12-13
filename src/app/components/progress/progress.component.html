@@ -1,0 +1,391 @@
+<div class="course-container">
+  <div class="course-layout">
+    <aside class="sidebar">
+      <div class="course-info">
+        <div class="course-badge">{{ course.category }}</div>
+        <h1 class="course-title">{{ course.title }}</h1>
+
+        <div class="instructor">
+          <div class="instructor-avatar">{{ course.instructorAvatar }}</div>
+          <div>
+            <div class="instructor-name">{{ course.instructor }}</div>
+            <div class="instructor-role">Instructor Principal</div>
+          </div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progreso del curso</span>
+            <span class="progress-value">{{ course.overallProgress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="course.overallProgress"></div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat">
+            <div class="stat-value">{{ course.totalDuration }}</div>
+            <div class="stat-label">Duración total</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">{{ course.totalModules }}</div>
+            <div class="stat-label">Módulos</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">{{ calculateTimeUntilCompletion() }}</div>
+            <div class="stat-label">Tiempo restante</div>
+          </div>
+        </div>
+
+        <div class="certificate-status" *ngIf="course.hasCertificate">
+          <div class="certificate-icon">
+            <ion-icon name="checkmark"></ion-icon>
+          </div>
+          <div class="certificate-info">
+            <div class="certificate-label">Certificación disponible</div>
+            <div class="certificate-progress">{{ course.certificateProgress }}% completado</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modules-container">
+        <div class="modules-header">
+          <h2>Contenido del curso</h2>
+          <p>{{ course.totalModules }} módulos • {{ course.totalLessons }} lecciones</p>
+        </div>
+
+        <div class="modules-list">
+          <div class="module" *ngFor="let module of course.modules" [class.expanded]="module.isExpanded">
+            <div class="module-header" (click)="toggleModule(module)">
+              <div class="module-info">
+                <div class="module-status" [class.completed]="module.progress === 100">
+                  <span *ngIf="module.progress === 100">✓</span>
+                  <span *ngIf="module.progress < 100">{{ module.progress }}%</span>
+                </div>
+                <div class="module-details">
+                  <h3>{{ module.title }}</h3>
+                  <p>{{ module.lessons.length }} lecciones • {{ module.duration }}</p>
+                </div>
+              </div>
+              <ion-icon name="chevron-down" class="expand-icon" [class.expanded]="module.isExpanded"></ion-icon>
+            </div>
+
+            <div class="lessons" *ngIf="module.isExpanded">
+              <div class="lesson"
+                   *ngFor="let lesson of module.lessons"
+                   [class.active]="activeLesson?.id === lesson.id"
+                   [class.completed]="lesson.completed"
+                   (click)="selectLesson(lesson, module)">
+                <div class="lesson-icon">{{ getLessonIcon(lesson.type) }}</div>
+                <div class="lesson-info">
+                  <div class="lesson-title">{{ lesson.title }}</div>
+                  <div class="lesson-meta">
+                    <span class="lesson-type">{{ getLessonTypeText(lesson.type) }}</span>
+                    <span class="lesson-duration">{{ lesson.duration }}</span>
+                  </div>
+                </div>
+                <button class="lesson-check"
+                        (click)="toggleLessonCompletion(lesson, module); $event.stopPropagation()"
+                        [class.completed]="lesson.completed">
+                  <ion-icon name="checkmark"></ion-icon>
+                </button>
+              </div>
+
+              <div class="module-exam" *ngIf="module.hasExam && course.showExams && module.examEnabled">
+                <div class="exam-content">
+                  <div class="exam-icon">✓</div>
+                  <div class="exam-info">
+                    <div class="exam-title">Evaluación del módulo</div>
+                    <div class="exam-description">Examen opcional disponible</div>
+                  </div>
+                  <button class="exam-btn" (click)="startExam(module)">Comenzar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="lesson-viewer" *ngIf="activeLesson">
+        <div class="viewer-header">
+          <div class="lesson-badge">{{ getLessonTypeText(activeLesson.type) }}</div>
+          <h2 class="lesson-title">{{ activeLesson.title }}</h2>
+          <p class="lesson-description" *ngIf="activeLesson.description">{{ activeLesson.description }}</p>
+        </div>
+
+        <div class="viewer-content">
+          <!-- VIDEO CONTENT -->
+          <div class="content-video" *ngIf="activeLesson.type === 'video'">
+            <div class="video-player">
+              <div class="video-screen" #videoScreen>
+                <div #ytPlayerContainer style="width:100%;height:100%;display:block;"></div>
+                <video #html5Video style="width:100%;height:100%;object-fit:cover;display:none;" playsinline></video>
+
+                <div class="play-overlay" (click)="playPause()" *ngIf="showVideoOverlay">
+                  <div class="play-btn">
+                    {{ isPlaying ? '⏸' : '▶' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="video-controls">
+                <div class="video-progress-container">
+                  <ion-range class="video-progress"
+                             min="0" 
+                             [max]="duration || 0" 
+                             [value]="currentTime || 0"
+                             (ionInput)="onSeekBarInput($event)" 
+                             (ionChange)="onSeekBarChange($event)">
+                  </ion-range>
+                  <div class="progress-time">{{ formatTimeLabel(currentTime) }} / {{ formatTimeLabel(duration) }}</div>
+                </div>
+
+                <div class="video-actions">
+                  <ion-button fill="clear" class="control-btn" (click)="seekBy(-30)" title="Retroceder 30s">
+                    ⟲ 30s
+                  </ion-button>
+                  <ion-button fill="clear" class="control-btn" (click)="seekBy(-10)" title="Retroceder 10s">
+                    ⟲ 10s
+                  </ion-button>
+                  <ion-button fill="clear" class="control-btn play" (click)="playPause()">
+                    {{ isPlaying ? '⏸' : '⏯' }}
+                  </ion-button>
+                  <ion-button fill="clear" class="control-btn" (click)="seekBy(10)" title="Adelantar 10s">
+                    10s ⟳
+                  </ion-button>
+                  <ion-button fill="clear" class="control-btn" (click)="seekBy(30)" title="Adelantar 30s">
+                    30s ⟳
+                  </ion-button>
+
+                  <div class="speed-selector">
+                    <ion-button fill="clear" class="speed-btn" (click)="showSpeedOptions = !showSpeedOptions">
+                      {{ playbackSpeed }}x
+                    </ion-button>
+                    <div class="speed-menu" *ngIf="showSpeedOptions">
+                      <ion-button fill="clear" (click)="setPlaybackSpeed(0.5)">0.5x</ion-button>
+                      <ion-button fill="clear" (click)="setPlaybackSpeed(0.75)">0.75x</ion-button>
+                      <ion-button fill="clear" (click)="setPlaybackSpeed(1.0)" [class.active]="playbackSpeed===1">1.0x</ion-button>
+                      <ion-button fill="clear" (click)="setPlaybackSpeed(1.25)">1.25x</ion-button>
+                      <ion-button fill="clear" (click)="setPlaybackSpeed(1.5)">1.5x</ion-button>
+                      <ion-button fill="clear" (click)="setPlaybackSpeed(2.0)">2.0x</ion-button>
+                    </div>
+                  </div>
+
+                  <div class="volume-control">
+                    <ion-button fill="clear" class="control-btn" (click)="toggleMute()" title="Silenciar">
+                      <ion-icon [name]="muted || volume === 0 ? 'volume-mute' : 'volume-high'"></ion-icon>
+                    </ion-button>
+                    <ion-range class="volume-slider"
+                               min="0" 
+                               max="100" 
+                               [value]="volume" 
+                               (ionChange)="setVolume(+$any($event.detail).value)">
+                    </ion-range>
+                  </div>
+
+                  <ion-button fill="clear" class="control-btn" (click)="toggleFullscreen()" title="Pantalla completa">
+                    <ion-icon name="expand"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TEXT CONTENT -->
+          <div class="content-text" *ngIf="activeLesson.type === 'text'">
+            <div class="text-viewer">
+              <div class="text-content">
+                <p>{{ activeLesson.description }}</p>
+                <p>Este contenido de texto educativo proporciona información detallada sobre el tema. Aquí encontrarás explicaciones paso a paso, conceptos clave y ejemplos prácticos que complementan los videos y otros materiales del curso.</p>
+
+                <h3>Puntos importantes</h3>
+                <ul>
+                  <li>Conceptos fundamentales explicados de manera clara y concisa</li>
+                  <li>Ejemplos prácticos aplicables a situaciones reales</li>
+                  <li>Referencias a material complementario para profundizar</li>
+                  <li>Ejercicios y actividades para reforzar el aprendizaje</li>
+                </ul>
+
+                <p>Puedes leer este contenido a tu propio ritmo y volver a consultarlo cuando lo necesites. Toma notas de los puntos más importantes para facilitar tu estudio.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- PDF CONTENT -->
+          <div class="content-pdf" *ngIf="activeLesson.type === 'pdf'">
+            <div class="pdf-viewer">
+              <div class="pdf-toolbar">
+                <h3>{{ activeLesson.title }}</h3>
+                <ion-button class="download-btn" (click)="downloadLesson(activeLesson)">
+                  <ion-icon slot="start" name="download"></ion-icon>
+                  Descargar PDF
+                </ion-button>
+              </div>
+              <div class="pdf-preview">
+                <div class="pdf-page">
+                  <h4>{{ activeLesson.title }}</h4>
+                  <p class="pdf-subtitle">Material educativo complementario</p>
+                  <div class="pdf-content">
+                    <p>Este documento PDF contiene información detallada, diagramas explicativos e imágenes de alta calidad para apoyar tu aprendizaje.</p>
+                    <p>Puedes descargarlo para consultarlo sin conexión o imprimirlo para estudiar en cualquier momento.</p>
+                    <div class="pdf-features">
+                      <div class="feature-item">
+                        <span class="feature-icon">🖼</span>
+                        <span>Imágenes en alta resolución</span>
+                      </div>
+                      <div class="feature-item">
+                        <span class="feature-icon">📊</span>
+                        <span>Gráficos y diagramas</span>
+                      </div>
+                      <div class="feature-item">
+                        <span class="feature-icon">✏</span>
+                        <span>Ejercicios prácticos</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- QUIZ CONTENT -->
+          <div class="content-quiz" *ngIf="activeLesson.type === 'quiz'">
+            <div class="quiz-viewer">
+              <div class="quiz-info-box">
+                <div class="quiz-stat">
+                  <span class="stat-icon">⏱</span>
+                  <span>{{ activeLesson.duration }}</span>
+                </div>
+                <div class="quiz-stat">
+                  <span class="stat-icon">❓</span>
+                  <span>20 preguntas</span>
+                </div>
+                <div class="quiz-stat">
+                  <span class="stat-icon">🎯</span>
+                  <span>70% mínimo</span>
+                </div>
+              </div>
+
+              <div class="quiz-instructions">
+                <h3>Sobre esta evaluación</h3>
+                <ul>
+                  <li>Esta evaluación es <strong>completamente opcional</strong></li>
+                  <li>Puedes realizarla cuantas veces necesites</li>
+                  <li>No hay límite de tiempo estricto</li>
+                  <li>Recibirás retroalimentación detallada al finalizar</li>
+                </ul>
+              </div>
+
+              <div class="quiz-actions">
+                <ion-button expand="block" class="primary-btn">Comenzar evaluación</ion-button>
+                <ion-button expand="block" fill="outline" class="secondary-btn">Ver preguntas de muestra</ion-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PRACTICE CONTENT -->
+          <div class="content-practice" *ngIf="activeLesson.type === 'practice'">
+            <div class="practice-viewer">
+              <div class="practice-card">
+                <div class="practice-icon">🔬</div>
+                <div class="practice-content">
+                  <h3>Actividad práctica</h3>
+                  <p>{{ activeLesson.description }}</p>
+                  <p>Aplica los conocimientos adquiridos en un escenario realista. Analiza las situaciones presentadas y proporciona tus respuestas basándote en lo aprendido.</p>
+                </div>
+              </div>
+              <div class="practice-actions">
+                <ion-button expand="block" class="primary-btn">Iniciar práctica</ion-button>
+                <ion-button expand="block" fill="outline" class="secondary-btn">Material de apoyo</ion-button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="viewer-footer">
+          <ion-button class="next-lesson-btn" (click)="goToNextLesson()" *ngIf="getNextLesson()">
+            Siguiente lección
+            <ion-icon slot="end" name="arrow-forward"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+
+      <!-- RESOURCES SIDEBAR -->
+      <div class="resources-sidebar" [class.show]="showResourcesPanel">
+        <div class="sidebar-header">
+          <h3>Recursos del Curso</h3>
+          <ion-button fill="clear" class="close-btn" (click)="toggleResourcesPanel()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+        <div class="resources-list">
+          <div class="resource-item" *ngFor="let resource of resources">
+            <div class="resource-icon">
+              <span *ngIf="resource.type === 'pdf'">📄</span>
+              <span *ngIf="resource.type === 'image'">🖼</span>
+              <span *ngIf="resource.type === 'video'">🎬</span>
+              <span *ngIf="resource.type === 'link'">🔗</span>
+            </div>
+            <div class="resource-info">
+              <div class="resource-title">{{ resource.title }}</div>
+              <div class="resource-meta">{{ resource.description }} • {{ resource.size }}</div>
+            </div>
+            <div class="resource-actions">
+              <ion-button fill="clear" size="small" class="resource-btn view" *ngIf="resource.type === 'video' || resource.type === 'pdf'" 
+                      (click)="viewResource(resource)" title="Ver">
+                <ion-icon [name]="resource.type === 'video' ? 'play-circle' : 'document'"></ion-icon>
+              </ion-button>
+              <ion-button fill="clear" size="small" class="resource-btn download" (click)="downloadResource(resource)" title="Descargar">
+                <ion-icon name="download"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="resources.length === 0">
+            <p>No hay recursos disponibles</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTES SIDEBAR -->
+      <div class="notes-sidebar" [class.show]="showNotesPanel">
+        <div class="sidebar-header">
+          <h3>Mis Notas</h3>
+          <ion-button fill="clear" class="close-btn" (click)="toggleNotesPanel()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+        <div class="notes-editor">
+          <ion-textarea [(ngModel)]="userNote" 
+                        placeholder="Escribe tus notas aquí..." 
+                        rows="5">
+          </ion-textarea>
+          <ion-button expand="block" class="add-note-btn" (click)="addNote()">Agregar nota</ion-button>
+        </div>
+        <div class="notes-list">
+          <div class="note-item" *ngFor="let note of notes; let i = index">
+            <div class="note-text">{{ note }}</div>
+            <ion-button fill="clear" size="small" class="delete-note-btn" (click)="deleteNote(i)" title="Eliminar nota">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </div>
+          <div class="empty-state" *ngIf="notes.length === 0">
+            <p>No hay notas todavía</p>
+            <p class="empty-hint">Agrega notas importantes durante tus lecciones</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="floating-actions">
+    <ion-fab-button class="floating-btn" [class.active]="showNotesPanel" (click)="toggleNotesPanel()" title="Notas">
+      <ion-icon name="create"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button class="floating-btn" [class.active]="showResourcesPanel" (click)="toggleResourcesPanel()" title="Recursos">
+      <ion-icon name="cube"></ion-icon>
+    </ion-fab-button>
+  </div>
+</div>
