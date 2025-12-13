@@ -1,0 +1,93 @@
+<div class="courses-container">
+  <section class="courses-section">
+    <div class="section-header">
+      <h2>Mis Cursos</h2>
+      <div class="filters-row">
+        <div class="status-filters">
+          <button class="filter-btn" [class.active]="activeFilter === 'all'" (click)="setFilter('all')">Todos</button>
+          <button class="filter-btn" [class.active]="activeFilter === 'active'" (click)="setFilter('active')">Activos</button>
+          <button class="filter-btn" [class.active]="activeFilter === 'completed'" (click)="setFilter('completed')">Completados</button>
+          <button class="filter-btn" [class.active]="activeFilter === 'pending'" (click)="setFilter('pending')">Por comenzar</button>
+        </div>
+
+        <div class="search-container">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <circle cx="9" cy="9" r="7" stroke="#999999" stroke-width="1.5"/>
+            <path d="M14 14l4 4" stroke="#999999" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <input
+            type="text"
+            class="search-input"
+            [(ngModel)]="searchQuery"
+            (input)="filterCourses()"
+            placeholder="Buscar cursos..."
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="courses-grid">
+      <div class="course-card" *ngFor="let course of filteredCourses">
+        <div class="course-thumbnail" [style.background]="course.thumbnail">
+          <div class="course-badge" [class.active]="course.status === 'active'" [class.completed]="course.status === 'completed'" [class.pending]="course.status === 'pending'">
+            <span *ngIf="course.status === 'active'">En progreso</span>
+            <span *ngIf="course.status === 'completed'">Completado</span>
+            <span *ngIf="course.status === 'pending'">Por comenzar</span>
+          </div>
+        </div>
+        <div class="course-content">
+          <div class="course-category">{{ course.category }}</div>
+          <h3 class="course-title">{{ course.title }}</h3>
+          <p class="course-instructor">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="5" r="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M3 14v-1a5 5 0 0110 0v1" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            {{ course.instructor }}
+          </p>
+
+          <div class="course-progress">
+            <div class="progress-info">
+              <span>Progreso</span>
+              <span class="progress-percent">{{ course.progress }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="course.progress"></div>
+            </div>
+          </div>
+
+          <div class="course-meta">
+            <div class="meta-item">
+              <span class="meta-label">Tiempo restante</span>
+              <span class="meta-value">{{ course.timeRemaining }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Próximo vencimiento</span>
+              <span class="meta-value due">{{ course.dueDate }}</span>
+            </div>
+          </div>
+
+          <button class="btn-primary" (click)="enterCourse(course.id)">
+            <span *ngIf="course.status === 'pending'">Comenzar curso</span>
+            <span *ngIf="course.status === 'active'">Continuar aprendiendo</span>
+            <span *ngIf="course.status === 'completed'">Ver detalles</span>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="filteredCourses.length === 0" class="empty-state">
+        <div class="empty-icon">📚</div>
+        <h2 class="empty-title">No se encontraron cursos</h2>
+        <p class="empty-description">No hay cursos que coincidan con tus filtros de búsqueda. Intenta cambiar los filtros o explora nuevos cursos.</p>
+        <button class="btn-primary" (click)="exploreCourses()">Explorar nuevos cursos</button>
+      </div>
+    </div>
+  </section>
+      <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="fab-container" title="Buscar nuevos cursos">
+      <ion-fab-button class="fab-button" (click)="exploreCourses()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </ion-fab-button>
+    </ion-fab>
+</div>

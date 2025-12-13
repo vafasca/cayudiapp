@@ -13,11 +13,11 @@ export const routes: Routes = [
         path: 'dashboard',
         loadComponent: () => import('./components/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
-      // Otras rutas hijas
-      // {
-      //   path: 'cursos',
-      //   loadComponent: () => import('./components/cursos/cursos.component').then((m) => m.CursosComponent),
-      // },
+      {
+        path: 'cursos', // Esta ruta debe coincidir con la del menú
+        loadComponent: () => import('./components/courses/courses.component').then((m) => m.CoursesComponent),
+      },
+      // Otras rutas hijas que necesites
       // {
       //   path: 'calendario',
       //   loadComponent: () => import('./components/calendario/calendario.component').then((m) => m.CalendarioComponent),
