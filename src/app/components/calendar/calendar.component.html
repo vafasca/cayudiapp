@@ -1,0 +1,163 @@
+<div class="calendar-content">
+  <div class="calendar-container">
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Calendario Académico</h1>
+      </div>
+
+      <div class="month-selector">
+        <ion-button fill="clear" class="nav-btn" (click)="changeMonth(-1)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </ion-button>
+        <div class="month-name">{{ getMonthName(currentMonth) }} {{ currentYear }}</div>
+        <ion-button fill="clear" class="nav-btn" (click)="changeMonth(1)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </ion-button>
+      </div>
+
+      <div class="calendar-wrapper">
+        <div class="calendar-grid">
+          <div class="day-header">Dom</div>
+          <div class="day-header">Lun</div>
+          <div class="day-header">Mar</div>
+          <div class="day-header">Mié</div>
+          <div class="day-header">Jue</div>
+          <div class="day-header">Vie</div>
+          <div class="day-header">Sáb</div>
+          
+          <!-- Días vacíos antes del primer día del mes -->
+          <div *ngFor="let i of [].constructor(firstDayOfMonth)" class="day-cell empty"></div>
+          
+          <!-- Días del mes -->
+          <div *ngFor="let day of daysInMonth" 
+               class="day-cell" 
+               [class.today]="isToday(day)"
+               [class.has-events]="getEventsForDay(day).length > 0"
+               (click)="selectDate(day)">
+            <div class="day-number" [class.today]="isToday(day)">{{ day }}</div>
+            <div class="event-indicator" *ngIf="getEventsForDay(day).length > 0">
+              <span class="event-dot" *ngFor="let event of getEventsForDay(day).slice(0, 3)"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel de eventos del día seleccionado -->
+        <div class="events-panel" *ngIf="selectedDate">
+          <div class="events-header">
+            <h2 class="events-title">
+              {{ selectedDate.getDate() }} de {{ getMonthName(selectedDate.getMonth()) }}
+            </h2>
+            <span class="events-count" *ngIf="getEventsForDay(selectedDate.getDate()).length > 0">
+              {{ getEventsForDay(selectedDate.getDate()).length }} 
+              {{ getEventsForDay(selectedDate.getDate()).length === 1 ? 'evento' : 'eventos' }}
+            </span>
+          </div>
+
+          <div class="events-list" *ngIf="getEventsForDay(selectedDate.getDate()).length > 0; else noEvents">
+            <div *ngFor="let event of getEventsForDay(selectedDate.getDate())" 
+                 class="event-card" 
+                 [class]="event.type">
+              <div class="event-color-bar"></div>
+              <div class="event-content">
+                <div class="event-header-info">
+                  <span class="event-icon">{{ getEventTypeIcon(event.type) }}</span>
+                  <span class="event-time">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    {{ formatTime(event.start) }} - {{ formatTime(event.end) }}
+                  </span>
+                </div>
+                <h3 class="event-title">{{ event.title }}</h3>
+                <p class="event-description" *ngIf="event.description">{{ event.description }}</p>
+                <div class="event-meta">
+                  <span *ngIf="event.course" class="event-course">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M2 6L8 3L14 6L8 9L2 6Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M2 10L8 13L14 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {{ event.course }}
+                  </span>
+                  <span *ngIf="event.location" class="event-location">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 8.5C8.82843 8.5 9.5 7.82843 9.5 7C9.5 6.17157 8.82843 5.5 8 5.5C7.17157 5.5 6.5 6.17157 6.5 7C6.5 7.82843 7.17157 8.5 8 8.5Z" stroke="currentColor" stroke-width="1.5"/>
+                      <path d="M8 14C8 14 12 10 12 7C12 4.79086 10.2091 3 8 3C5.79086 3 4 4.79086 4 7C4 10 8 14 8 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    {{ event.location }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ng-template #noEvents>
+            <div class="no-events">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="24" stroke="#CCCCCC" stroke-width="2"/>
+                <path d="M32 20V32L40 40" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <h3>No hay eventos</h3>
+              <p>Este día no tiene actividades programadas</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de día para móviles -->
+  <ion-modal [isOpen]="selectedDay !== null && isMobile" (didDismiss)="closeDayModal()" class="day-modal-wrapper">
+    <ng-template>
+      <div class="day-modal">
+        <div class="modal-header">
+          <h2 class="modal-title">{{ selectedDay }} de {{ getMonthName(currentMonth) }}, {{ currentYear }}</h2>
+          <ion-button fill="clear" class="modal-close" (click)="closeDayModal()">
+            <ion-icon name="close"></ion-icon>
+          </ion-button>
+        </div>
+        <ion-content class="modal-content">
+          <div *ngIf="dayEvents.length > 0; else noEventsModal">
+            <div class="day-events-list">
+              <div *ngFor="let event of dayEvents" class="event-card-modal" [class]="event.type">
+                <div class="event-color-bar"></div>
+                <div class="event-content">
+                  <div class="event-header-info">
+                    <span class="event-icon">{{ getEventTypeIcon(event.type) }}</span>
+                    <span class="event-time">
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M8 5v3l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                      {{ formatTime(event.start) }} - {{ formatTime(event.end) }}
+                    </span>
+                  </div>
+                  <h3 class="event-title">{{ event.title }}</h3>
+                  <p class="event-description" *ngIf="event.description">{{ event.description }}</p>
+                  <div class="event-meta">
+                    <span *ngIf="event.course" class="event-course">{{ event.course }}</span>
+                    <span *ngIf="event.location" class="event-location">{{ event.location }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ng-template #noEventsModal>
+            <div class="no-events">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <circle cx="32" cy="32" r="24" stroke="#CCCCCC" stroke-width="2"/>
+                <path d="M32 20V32L40 40" stroke="#CCCCCC" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              <h3>No hay eventos</h3>
+              <p>Este día no tiene actividades programadas</p>
+            </div>
+          </ng-template>
+        </ion-content>
+      </div>
+    </ng-template>
+  </ion-modal>
+</div>

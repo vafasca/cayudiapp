@@ -25,6 +25,10 @@ export const routes: Routes = [
         path: 'progreso',
         loadComponent: () => import('./components/progress/progress.component').then((m) => m.ProgressComponent),
       },
+      {
+        path: 'calendario',
+        loadComponent: () => import('./components/calendar/calendar.component').then((m) => m.CalendarComponent),
+      },
       // Otras rutas hijas que necesites
       // {
       //   path: 'calendario',

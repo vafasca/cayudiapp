@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { IonButton, IonIcon } from "@ionic/angular/standalone";
+import { IonButton, IonIcon, IonFabButton } from "@ionic/angular/standalone";
 import { addIcons } from 'ionicons';
 import { Icon } from 'ionicons/dist/types/components/icon/icon';
 import {
@@ -24,8 +24,7 @@ import {
   videocam,
   clipboard,
   pulseOutline,
-  readerOutline
-} from 'ionicons/icons';
+  readerOutline, checkmark, close, expand, download, arrowForward, list, create, cube } from 'ionicons/icons';
 
 
 @Component({
@@ -33,7 +32,7 @@ import {
   standalone: true,
   templateUrl: './layout.component.html',
   styleUrls: ['./layout.component.scss'],
-  imports: [IonButton, IonIcon, CommonModule, RouterModule]
+  imports: [IonFabButton, IonButton, IonIcon, CommonModule, RouterModule]
 })
 export class LayoutComponent  implements OnInit {
 sidebarOpen = false;
@@ -50,39 +49,18 @@ sidebarOpen = false;
   menuItems = [
     { icon: 'grid', label: 'Dashboard', route: '/dashboard', active: true },
     { icon: 'school', label: 'Mis Cursos', route: '/cursos' },
-    { icon: 'calendar', label: 'Calendario', route: '/calendario' },
     { icon: 'videocam', label: 'Mi Progreso', route: '/progreso' },
     { icon: 'reader-outline', label: 'Certificado', route: '/certificado' },
-    { icon: 'document-text', label: 'Materiales', route: '/materiales' },
-    { icon: 'stats-chart', label: 'Estadísticas', route: '/estadisticas' },
-    { icon: 'trophy', label: 'Logros', route: '/logros' },
+    { icon: 'calendar', label: 'Calendario', route: '/calendario' },
+    // { icon: 'document-text', label: 'Materiales', route: '/materiales' },
+    // { icon: 'stats-chart', label: 'Estadísticas', route: '/estadisticas' },
+    // { icon: 'trophy', label: 'Logros', route: '/logros' },
     { icon: 'settings', label: 'Configuración', route: '/configuracion' },
     { icon: 'help-circle', label: 'Ayuda', route: '/ayuda' }
   ];
 
   constructor() {
-  addIcons({
-    grid,
-    school,
-    calendar,
-    documentText,
-    statsChart,
-    trophy,
-    settings,
-    helpCircle,
-    chevronDown,
-    personCircle,
-    menu,
-    notifications,
-    chatbubbles,
-    eye,
-    logOut,
-    search,
-    videocam,
-    clipboard,
-    pulseOutline,
-    readerOutline
-  });
+  addIcons({checkmark,chevronDown,close,expand,download,arrowForward,list,create,cube,grid,school,calendar,documentText,statsChart,trophy,settings,helpCircle,personCircle,menu,notifications,chatbubbles,eye,logOut,search,videocam,clipboard,pulseOutline,readerOutline});
 }
 
 
