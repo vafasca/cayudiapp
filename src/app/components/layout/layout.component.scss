@@ -21,6 +21,8 @@
   right: 0;
   z-index: 1000;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding-top: env(safe-area-inset-top);
+  height: calc(64px + env(safe-area-inset-top));
 }
 
 .header-content {
@@ -174,10 +176,10 @@
 /* ========== SIDEBAR ========== */
 .sidebar {
   position: fixed;
-  top: 64px;
+  top: calc(64px + env(safe-area-inset-top));
   left: 0;
   width: 260px;
-  height: calc(100vh - 64px);
+  height: calc(100vh - (64px + env(safe-area-inset-top)));
   background: #1E73BE;
   color: white;
   overflow-y: auto;
@@ -215,11 +217,11 @@
 
 /* ========== MAIN CONTENT ========== */
 .main-content {
-  margin-top: 64px;
+  margin-top: calc(64px + env(safe-area-inset-top));
   margin-left: 260px;
   padding: 2rem;
   transition: margin-left 0.3s ease;
-  height: calc(100vh - 64px);
+  height: calc(100vh - (64px + env(safe-area-inset-top)));
   overflow-y: auto;
   background: #f5f7fa;
 }
